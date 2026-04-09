@@ -76,6 +76,12 @@
 - **Collab** — Chat with your group, share notes, create polls, and track who's signed up for each day's activities
 - **Dashboard Widgets** — Currency converter and timezone clock, toggleable per user
 
+### AI / MCP Integration
+- **MCP Server** — Built-in [Model Context Protocol](MCP.md) server exposes 80+ tools and 27 resources so AI assistants (Claude, Cursor, etc.) can read and modify your trips
+- **Full Trip Automation** — AI can create trips, plan itineraries, build packing lists, manage budgets, send collab messages, mark countries visited, and more in a single conversation
+- **Prompts** — Pre-built `trip-summary`, `packing-list`, and `budget-overview` prompts give AI clients instant structured context
+- **Addon-Aware** — Atlas, Collab, and Vacay features are exposed automatically when those addons are enabled
+
 ### Customization & Admin
 - **Dashboard Views** — Toggle between card grid and compact list view on the My Trips page
 - **Dark Mode** — Full light and dark theme with dynamic status bar color matching
