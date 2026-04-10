@@ -123,7 +123,7 @@ export function isValidRedirectUri(uri: string): boolean {
 }
 
 export function createOAuthClient(
-  userId: number,
+  userId: number | null,
   name: string,
   redirectUris: string[],
   allowedScopes: string[],
@@ -151,8 +151,14 @@ export function createOAuthClient(
   const { valid, invalid } = validateScopes(allowedScopes);
   if (!valid) return { error: `Invalid scopes: ${invalid.join(', ')}`, status: 400 };
 
-  const count = (db.prepare('SELECT COUNT(*) as count FROM oauth_clients WHERE user_id = ?').get(userId) as { count: number }).count;
-  if (count >= 10) return { error: 'Maximum of 10 OAuth clients per user', status: 400 };
+  if (userId !== null) {
+    const count = (db.prepare('SELECT COUNT(*) as count FROM oauth_clients WHERE user_id = ?').get(userId) as { count: number }).count;
+    if (count >= 10) return { error: 'Maximum of 10 OAuth clients per user', status: 400 };
+  } else {
+    // Anonymous DCR clients: enforce a global cap to prevent unbounded registration abuse
+    const count = (db.prepare('SELECT COUNT(*) as count FROM oauth_clients WHERE user_id IS NULL').get() as { count: number }).count;
+    if (count >= 500) return { error: 'server_error', status: 503 };
+  }
 
   const isPublic    = options?.isPublic ?? false;
   const createdVia  = options?.createdVia ?? 'settings_ui';

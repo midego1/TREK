@@ -59,6 +59,7 @@ function makeRateLimiter(maxAttempts: number, windowMs: number, keyFn: (req: Req
 const tokenLimiter    = makeRateLimiter(30, 60_000, (req) => `${req.ip}|${req.body?.client_id ?? ''}`);
 const validateLimiter = makeRateLimiter(30, 60_000, (req) => req.ip ?? 'unknown');
 const revokeLimiter   = makeRateLimiter(10, 60_000, (req) => req.ip ?? 'unknown');
+const dcrLimiter      = makeRateLimiter(10, 60_000, (req) => req.ip ?? 'unknown');
 
 // ---------------------------------------------------------------------------
 // Public router: /.well-known, /oauth/token, /oauth/revoke
@@ -171,6 +172,57 @@ oauthPublicRouter.post('/oauth/token', tokenLimiter, (req: Request, res: Respons
   }
 
   return res.status(400).json({ error: 'unsupported_grant_type', error_description: `Unsupported grant_type: ${grant_type}` });
+});
+
+// RFC 7591 Dynamic Client Registration endpoint
+oauthPublicRouter.post('/oauth/register', dcrLimiter, (req: Request, res: Response) => {
+  if (!isAddonEnabled(ADDON_IDS.MCP)) return res.status(404).end();
+
+  const body: Record<string, unknown> = typeof req.body === 'object' && req.body !== null ? req.body : {};
+  const ip = getClientIp(req);
+
+  const redirectUris: string[] = Array.isArray(body.redirect_uris) ? body.redirect_uris.filter((u): u is string => typeof u === 'string') : [];
+  if (redirectUris.length === 0) {
+    return res.status(400).json({ error: 'invalid_redirect_uri', error_description: 'redirect_uris is required and must be a non-empty array' });
+  }
+
+  const rawName = typeof body.client_name === 'string' ? body.client_name.trim().slice(0, 100) : '';
+  const clientName = rawName || 'MCP Client';
+
+  // Determine if the client wants to be public (no secret) — MCP clients typically use PKCE only
+  const authMethod = typeof body.token_endpoint_auth_method === 'string' ? body.token_endpoint_auth_method : 'client_secret_post';
+  const isPublic = authMethod === 'none';
+
+  // Resolve requested scopes — default to all supported scopes if not specified
+  const rawScope = typeof body.scope === 'string' ? body.scope : ALL_SCOPES.join(' ');
+  const requestedScopes = rawScope.split(' ').filter(s => (ALL_SCOPES as string[]).includes(s));
+  if (requestedScopes.length === 0) {
+    return res.status(400).json({ error: 'invalid_client_metadata', error_description: 'No valid scopes requested' });
+  }
+
+  const result = createOAuthClient(null, clientName, redirectUris, requestedScopes, ip, {
+    isPublic,
+    createdVia: 'dcr',
+  });
+
+  if (result.error) {
+    return res.status(result.status || 400).json({ error: 'invalid_client_metadata', error_description: result.error });
+  }
+
+  const client = result.client!;
+  const now = Math.floor(Date.now() / 1000);
+
+  return res.status(201).json({
+    client_id:                     client.client_id,
+    ...(client.client_secret      ? { client_secret: client.client_secret, client_secret_expires_at: 0 } : {}),
+    client_id_issued_at:           now,
+    redirect_uris:                 client.redirect_uris,
+    grant_types:                   ['authorization_code', 'refresh_token'],
+    response_types:                ['code'],
+    scope:                         (client.allowed_scopes as string[]).join(' '),
+    client_name:                   client.name,
+    token_endpoint_auth_method:    isPublic ? 'none' : 'client_secret_post',
+  });
 });
 
 // Token revocation endpoint (RFC 7009)

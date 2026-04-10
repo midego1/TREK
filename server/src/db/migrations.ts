@@ -19,7 +19,8 @@ function runMigrations(db: Database.Database): void {
     }
   }
 
-  const migrations: Array<() => void> = [
+  type Migration = (() => void) | { raw: () => void };
+  const migrations: Migration[] = [
     () => db.exec('ALTER TABLE users ADD COLUMN unsplash_api_key TEXT'),
     () => db.exec('ALTER TABLE users ADD COLUMN openweather_api_key TEXT'),
     () => db.exec('ALTER TABLE places ADD COLUMN duration_minutes INTEGER DEFAULT 60'),
@@ -940,13 +941,50 @@ function runMigrations(db: Database.Database): void {
         ALTER TABLE oauth_clients ADD COLUMN created_via TEXT NOT NULL DEFAULT 'settings_ui';
       `);
     },
+    // Migration: Make oauth_clients.user_id nullable to support anonymous RFC 7591 DCR clients
+    // (must run outside a transaction because PRAGMA foreign_keys cannot change mid-transaction)
+    {
+      raw: () => {
+        db.exec('PRAGMA foreign_keys = OFF');
+        try {
+          db.transaction(() => {
+            db.exec(`
+              CREATE TABLE IF NOT EXISTS oauth_clients_new (
+                id                 TEXT PRIMARY KEY,
+                user_id            INTEGER REFERENCES users(id) ON DELETE CASCADE,
+                name               TEXT NOT NULL,
+                client_id          TEXT UNIQUE NOT NULL,
+                client_secret_hash TEXT NOT NULL,
+                redirect_uris      TEXT NOT NULL DEFAULT '[]',
+                allowed_scopes     TEXT NOT NULL DEFAULT '[]',
+                created_at         DATETIME DEFAULT CURRENT_TIMESTAMP,
+                is_public          INTEGER NOT NULL DEFAULT 0,
+                created_via        TEXT NOT NULL DEFAULT 'settings_ui'
+              )
+            `);
+            db.exec(`INSERT INTO oauth_clients_new SELECT id, user_id, name, client_id, client_secret_hash, redirect_uris, allowed_scopes, created_at, is_public, created_via FROM oauth_clients`);
+            db.exec(`DROP TABLE oauth_clients`);
+            db.exec(`ALTER TABLE oauth_clients_new RENAME TO oauth_clients`);
+            db.exec(`CREATE INDEX IF NOT EXISTS idx_oauth_clients_user ON oauth_clients(user_id)`);
+            db.exec(`CREATE UNIQUE INDEX IF NOT EXISTS idx_oauth_clients_client_id ON oauth_clients(client_id)`);
+          })();
+        } finally {
+          db.exec('PRAGMA foreign_keys = ON');
+        }
+      },
+    },
   ];
 
   if (currentVersion < migrations.length) {
     for (let i = currentVersion; i < migrations.length; i++) {
       console.log(`[DB] Running migration ${i + 1}/${migrations.length}`);
       try {
-        db.transaction(() => migrations[i]())();
+        const migration = migrations[i];
+        if (typeof migration === 'function') {
+          db.transaction(migration)();
+        } else {
+          migration.raw();
+        }
       } catch (err) {
         console.error(`[migrations] FATAL: Migration ${i + 1} failed, rolled back:`, err);
         process.exit(1);
