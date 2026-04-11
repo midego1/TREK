@@ -339,20 +339,18 @@ describe('DashboardPage', () => {
       render(<DashboardPage />);
 
       await waitFor(() => {
-        expect(screen.getAllByText('Paris Adventure').length).toBeGreaterThan(0);
+        expect(screen.getAllByText('Tokyo Trip').length).toBeGreaterThan(0);
       });
 
       // Switch to list view
       const viewToggle = screen.getByTitle(/list view/i);
       await user.click(viewToggle);
 
-      // Both trips should still be visible in list view
+      // Non-spotlight trips should be visible in list view
       await waitFor(() => {
-        expect(screen.getAllByText('Paris Adventure').length).toBeGreaterThan(0);
         expect(screen.getAllByText('Tokyo Trip').length).toBeGreaterThan(0);
       });
 
-      // In list view, clicking Tokyo Trip card should work
       const tokyoTrip = screen.getAllByText('Tokyo Trip')[0];
       await user.click(tokyoTrip);
       expect(tokyoTrip).toBeInTheDocument();
@@ -365,16 +363,15 @@ describe('DashboardPage', () => {
       render(<DashboardPage />);
 
       await waitFor(() => {
-        expect(screen.getAllByText('Paris Adventure').length).toBeGreaterThan(0);
+        expect(screen.getAllByText('Tokyo Trip').length).toBeGreaterThan(0);
       });
 
       // Switch to list view
       const viewToggle = screen.getByTitle(/list view/i);
       await user.click(viewToggle);
 
-      // Both trips render in list view
+      // Non-spotlight trips render in list view
       await waitFor(() => {
-        expect(screen.getAllByText('Paris Adventure').length).toBeGreaterThan(0);
         expect(screen.getAllByText('Tokyo Trip').length).toBeGreaterThan(0);
       });
 
@@ -520,7 +517,7 @@ describe('DashboardPage', () => {
       if (submitBtn) {
         await user.click(submitBtn);
         await waitFor(() => {
-          expect(screen.getByText('New Trip Test')).toBeInTheDocument();
+          expect(screen.getAllByText('New Trip Test').length).toBeGreaterThan(0);
         });
       }
     });
