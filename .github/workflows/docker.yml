@@ -194,9 +194,6 @@ jobs:
             -t "mauriceboe/trek:latest" \
             -t "mauriceboe/trek:$MAJOR_TAG" \
             -t "mauriceboe/trek:$VERSION" \
-            -t "mauriceboe/nomad:latest" \
-            -t "mauriceboe/nomad:$MAJOR_TAG" \
-            -t "mauriceboe/nomad:$VERSION" \
             "${digests[@]}"
 
       - name: Inspect manifest
