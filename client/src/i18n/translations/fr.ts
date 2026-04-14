@@ -1903,6 +1903,7 @@ const fr: Record<string, string> = {
   'journey.synced.places': 'lieux',
   'journey.synced.synced': 'synchronisé',
   'journey.editor.uploadPhotos': 'Téléverser des photos',
+  'journey.editor.uploading': 'Envoi...',
   'journey.editor.fromGallery': 'Depuis la galerie',
   'journey.editor.allPhotosAdded': 'Toutes les photos ont déjà été ajoutées',
   'journey.editor.writeStory': 'Écrivez votre histoire...',

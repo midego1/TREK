@@ -1903,6 +1903,7 @@ const ru: Record<string, string> = {
   'journey.synced.places': 'мест',
   'journey.synced.synced': 'синхронизировано',
   'journey.editor.uploadPhotos': 'Загрузить фото',
+  'journey.editor.uploading': 'Загрузка...',
   'journey.editor.fromGallery': 'Из галереи',
   'journey.editor.allPhotosAdded': 'Все фото уже добавлены',
   'journey.editor.writeStory': 'Напишите свою историю...',

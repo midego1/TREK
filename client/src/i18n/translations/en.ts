@@ -1919,6 +1919,7 @@ const en: Record<string, string | { name: string; category: string }[]> = {
 
   // Journey Entry Editor
   'journey.editor.uploadPhotos': 'Upload photos',
+  'journey.editor.uploading': 'Uploading...',
   'journey.editor.fromGallery': 'From Gallery',
   'journey.editor.allPhotosAdded': 'All photos already added',
   'journey.editor.writeStory': 'Write your story...',

@@ -1908,6 +1908,7 @@ const de: Record<string, string | { name: string; category: string }[]> = {
   'journey.synced.places': 'Orte',
   'journey.synced.synced': 'synchronisiert',
   'journey.editor.uploadPhotos': 'Fotos hochladen',
+  'journey.editor.uploading': 'Hochladen...',
   'journey.editor.fromGallery': 'Aus Galerie',
   'journey.editor.allPhotosAdded': 'Alle Fotos bereits hinzugefügt',
   'journey.editor.writeStory': 'Erzähle deine Geschichte...',

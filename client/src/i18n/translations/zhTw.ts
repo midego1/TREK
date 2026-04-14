@@ -1863,6 +1863,7 @@ const zhTw: Record<string, string> = {
   'journey.synced.places': '個地點',
   'journey.synced.synced': '已同步',
   'journey.editor.uploadPhotos': '上傳照片',
+  'journey.editor.uploading': '上傳中...',
   'journey.editor.fromGallery': '從相簿',
   'journey.editor.allPhotosAdded': '所有照片已新增',
   'journey.editor.writeStory': '寫下你的故事...',

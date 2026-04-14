@@ -1903,6 +1903,7 @@ const nl: Record<string, string> = {
   'journey.synced.places': 'plaatsen',
   'journey.synced.synced': 'gesynchroniseerd',
   'journey.editor.uploadPhotos': 'Foto\'s uploaden',
+  'journey.editor.uploading': 'Uploaden...',
   'journey.editor.fromGallery': 'Uit galerij',
   'journey.editor.allPhotosAdded': 'Alle foto\'s al toegevoegd',
   'journey.editor.writeStory': 'Schrijf je verhaal...',

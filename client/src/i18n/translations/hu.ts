@@ -1904,6 +1904,7 @@ const hu: Record<string, string | { name: string; category: string }[]> = {
   'journey.synced.places': 'helyszín',
   'journey.synced.synced': 'szinkronizálva',
   'journey.editor.uploadPhotos': 'Fotók feltöltése',
+  'journey.editor.uploading': 'Feltöltés...',
   'journey.editor.fromGallery': 'Galériából',
   'journey.editor.allPhotosAdded': 'Minden fotó már hozzáadva',
   'journey.editor.writeStory': 'Írd meg a történeted...',

@@ -1903,6 +1903,7 @@ const zh: Record<string, string> = {
   'journey.synced.places': '个地点',
   'journey.synced.synced': '已同步',
   'journey.editor.uploadPhotos': '上传照片',
+  'journey.editor.uploading': '上传中...',
   'journey.editor.fromGallery': '从相册',
   'journey.editor.allPhotosAdded': '所有照片已添加',
   'journey.editor.writeStory': '写下你的故事...',

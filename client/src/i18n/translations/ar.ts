@@ -1569,6 +1569,7 @@ const ar: Record<string, string | { name: string; category: string }[]> = {
 
   // Journey Entry Editor
   'journey.editor.uploadPhotos': 'رفع صور',
+  'journey.editor.uploading': '...جارٍ الرفع',
   'journey.editor.fromGallery': 'من المعرض',
   'journey.editor.addAnother': 'إضافة آخر',
   'journey.editor.makeFirst': 'جعله الأول',

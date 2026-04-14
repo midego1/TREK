@@ -772,6 +772,7 @@ function GalleryView({ entries, journeyId, userId, trips, onPhotoClick, onRefres
   const [showPicker, setShowPicker] = useState(false)
   const [pickerProvider, setPickerProvider] = useState<string | null>(null)
   const [availableProviders, setAvailableProviders] = useState<{ id: string; name: string }[]>([])
+  const [galleryUploading, setGalleryUploading] = useState(false)
   const toast = useToast()
 
   // check which providers are enabled AND connected for the current user
@@ -816,27 +817,28 @@ function GalleryView({ entries, journeyId, userId, trips, onPhotoClick, onRefres
   const handleGalleryUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files
     if (!files?.length) return
-    // find existing "Gallery" entry or create one
-    let galleryEntry = entries.find(e => e.title === 'Gallery' && e.type === 'entry')
-    let entryId = galleryEntry?.id
-    if (!entryId) {
-      try {
+    setGalleryUploading(true)
+    try {
+      // find existing "Gallery" entry or create one
+      let galleryEntry = entries.find(e => e.title === 'Gallery' && e.type === 'entry')
+      let entryId = galleryEntry?.id
+      if (!entryId) {
         const entry = await journeyApi.createEntry(journeyId, {
           title: t('journey.share.gallery'),
           entry_date: new Date().toISOString().split('T')[0],
           type: 'entry',
         })
         entryId = entry.id
-      } catch { return }
-    }
-    const formData = new FormData()
-    for (const f of files) formData.append('photos', f)
-    try {
+      }
+      const formData = new FormData()
+      for (const f of files) formData.append('photos', f)
       await journeyApi.uploadPhotos(entryId, formData)
       toast.success(t('journey.photosUploaded', { count: files.length }))
       onRefresh()
     } catch {
       toast.error(t('journey.settings.coverFailed'))
+    } finally {
+      setGalleryUploading(false)
     }
     e.target.value = ''
   }
@@ -874,10 +876,14 @@ function GalleryView({ entries, journeyId, userId, trips, onPhotoClick, onRefres
         <div className="flex items-center gap-2">
           <button
             onClick={() => galleryFileRef.current?.click()}
-            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-[11px] font-medium hover:bg-zinc-800 dark:hover:bg-zinc-100"
+            disabled={galleryUploading}
+            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-zinc-900 dark:bg-white text-white dark:text-zinc-900 text-[11px] font-medium hover:bg-zinc-800 dark:hover:bg-zinc-100 disabled:opacity-50"
           >
-            <Plus size={12} />
-            {t('common.upload')}
+            {galleryUploading ? (
+              <><div className="w-3 h-3 border-2 border-white/30 dark:border-zinc-900/30 border-t-white dark:border-t-zinc-900 rounded-full animate-spin" /> {t('journey.editor.uploading')}</>
+            ) : (
+              <><Plus size={12} /> {t('common.upload')}</>
+            )}
           </button>
           {availableProviders.map(p => (
             <button
@@ -1918,6 +1924,7 @@ function EntryEditor({ entry, journeyId, tripDates, galleryPhotos, onClose, onSa
   const [pros, setPros] = useState<string[]>(entry.pros_cons?.pros?.length ? entry.pros_cons.pros : [''])
   const [cons, setCons] = useState<string[]>(entry.pros_cons?.cons?.length ? entry.pros_cons.cons : [''])
   const [saving, setSaving] = useState(false)
+  const [uploading, setUploading] = useState(false)
   const [photos, setPhotos] = useState<JourneyPhoto[]>(entry.photos || [])
   const [pendingFiles, setPendingFiles] = useState<File[]>([])
   const [pendingLinkIds, setPendingLinkIds] = useState<number[]>([])
@@ -1966,10 +1973,15 @@ function EntryEditor({ entry, journeyId, tripDates, galleryPhotos, onClose, onSa
       // queue files for upload after save
       setPendingFiles(prev => [...prev, ...Array.from(files)])
     } else {
-      const formData = new FormData()
-      for (const f of files) formData.append('photos', f)
-      const newPhotos = await onUploadPhotos(entry.id, formData)
-      if (newPhotos?.length) setPhotos(prev => [...prev, ...newPhotos])
+      setUploading(true)
+      try {
+        const formData = new FormData()
+        for (const f of files) formData.append('photos', f)
+        const newPhotos = await onUploadPhotos(entry.id, formData)
+        if (newPhotos?.length) setPhotos(prev => [...prev, ...newPhotos])
+      } finally {
+        setUploading(false)
+      }
     }
   }
 
@@ -1997,9 +2009,14 @@ function EntryEditor({ entry, journeyId, tripDates, galleryPhotos, onClose, onSa
             <div className="flex gap-2">
               <button
                 onClick={() => fileRef.current?.click()}
-                className="flex-1 border border-dashed border-zinc-200 dark:border-zinc-700 rounded-lg py-4 text-[12px] text-zinc-500 hover:border-zinc-400 dark:hover:border-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 flex items-center justify-center gap-1.5"
+                disabled={uploading}
+                className="flex-1 border border-dashed border-zinc-200 dark:border-zinc-700 rounded-lg py-4 text-[12px] text-zinc-500 hover:border-zinc-400 dark:hover:border-zinc-500 hover:bg-zinc-50 dark:hover:bg-zinc-800 flex items-center justify-center gap-1.5 disabled:opacity-50"
               >
-                <Plus size={13} /> {t('journey.editor.uploadPhotos')}
+                {uploading ? (
+                  <><div className="w-3.5 h-3.5 border-2 border-zinc-300 border-t-zinc-600 rounded-full animate-spin" /> {t('journey.editor.uploading')}</>
+                ) : (
+                  <><Plus size={13} /> {t('journey.editor.uploadPhotos')}</>
+                )}
               </button>
               {galleryPhotos.length > 0 && (
                 <button

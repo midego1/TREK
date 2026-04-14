@@ -1902,6 +1902,7 @@ const br: Record<string, string | { name: string; category: string }[]> = {
   'journey.synced.places': 'lugares',
   'journey.synced.synced': 'sincronizado',
   'journey.editor.uploadPhotos': 'Enviar fotos',
+  'journey.editor.uploading': 'Enviando...',
   'journey.editor.fromGallery': 'Da galeria',
   'journey.editor.allPhotosAdded': 'Todas as fotos já foram adicionadas',
   'journey.editor.writeStory': 'Escreva sua história...',

@@ -1907,6 +1907,7 @@ const cs: Record<string, string | { name: string; category: string }[]> = {
   'journey.synced.places': 'místa',
   'journey.synced.synced': 'synchronizováno',
   'journey.editor.uploadPhotos': 'Nahrát fotky',
+  'journey.editor.uploading': 'Nahrávání...',
   'journey.editor.fromGallery': 'Z galerie',
   'journey.editor.allPhotosAdded': 'Všechny fotky již přidány',
   'journey.editor.writeStory': 'Napište svůj příběh...',
