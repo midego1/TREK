@@ -1,19 +1,18 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { useState, useRef, useMemo, useCallback, useEffect } from 'react'
-import DOM from 'react-dom'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { Search, Plus, X, CalendarDays, Pencil, Trash2, ExternalLink, Navigation, Upload, ChevronDown, Check, MapPin, Eye } from 'lucide-react'
 import PlaceAvatar from '../shared/PlaceAvatar'
 import { getCategoryIcon } from '../shared/categoryIcons'
 import { useTranslation } from '../../i18n'
 import { useToast } from '../shared/Toast'
-import CustomSelect from '../shared/CustomSelect'
 import { useContextMenu, ContextMenu } from '../shared/ContextMenu'
 import { placesApi } from '../../api/client'
 import { useTripStore } from '../../store/tripStore'
 import { useCanDo } from '../../store/permissionsStore'
 import { useAddonStore } from '../../store/addonStore'
 import type { Place, Category, Day, AssignmentsMap } from '../../types'
+import FileImportModal from './FileImportModal'
 
 interface PlacesSidebarProps {
   tripId: number
@@ -41,33 +40,43 @@ const PlacesSidebar = React.memo(function PlacesSidebar({
   const { t } = useTranslation()
   const toast = useToast()
   const ctxMenu = useContextMenu()
-  const gpxInputRef = useRef<HTMLInputElement>(null)
   const trip = useTripStore((s) => s.trip)
   const loadTrip = useTripStore((s) => s.loadTrip)
   const can = useCanDo()
   const canEditPlaces = can('place_edit', trip)
   const isNaverListImportEnabled = useAddonStore((s) => s.isEnabled('naver_list_import'))
 
-  const handleGpxImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    e.target.value = ''
-    try {
-      const result = await placesApi.importGpx(tripId, file)
-      await loadTrip(tripId)
-      toast.success(t('places.gpxImported', { count: result.count }))
-      if (result.places?.length > 0) {
-        const importedIds: number[] = result.places.map((p: { id: number }) => p.id)
-        pushUndo?.(t('undo.importGpx'), async () => {
-          for (const id of importedIds) {
-            try { await placesApi.delete(tripId, id) } catch {}
-          }
-          await loadTrip(tripId)
-        })
-      }
-    } catch (err: any) {
-      toast.error(err?.response?.data?.error || t('places.gpxError'))
-    }
+  const [fileImportOpen, setFileImportOpen] = useState(false)
+  const [sidebarDropFile, setSidebarDropFile] = useState<File | null>(null)
+  const [sidebarDragOver, setSidebarDragOver] = useState(false)
+  const sidebarDragCounter = useRef(0)
+
+  const handleSidebarDragEnter = (e: React.DragEvent) => {
+    if (!canEditPlaces) return
+    e.preventDefault()
+    sidebarDragCounter.current++
+    setSidebarDragOver(true)
+  }
+
+  const handleSidebarDragOver = (e: React.DragEvent) => {
+    if (!canEditPlaces) return
+    e.preventDefault()
+  }
+
+  const handleSidebarDragLeave = () => {
+    sidebarDragCounter.current--
+    if (sidebarDragCounter.current === 0) setSidebarDragOver(false)
+  }
+
+  const handleSidebarDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    sidebarDragCounter.current = 0
+    setSidebarDragOver(false)
+    if (!canEditPlaces) return
+    const f = e.dataTransfer.files[0]
+    if (!f) return
+    setSidebarDropFile(f)
+    setFileImportOpen(true)
   }
 
   const [listImportOpen, setListImportOpen] = useState(false)
@@ -92,7 +101,11 @@ const PlacesSidebar = React.memo(function PlacesSidebar({
         ? await placesApi.importGoogleList(tripId, listImportUrl.trim())
         : await placesApi.importNaverList(tripId, listImportUrl.trim())
       await loadTrip(tripId)
-      toast.success(t(provider === 'google' ? 'places.googleListImported' : 'places.naverListImported', { count: result.count, list: result.listName }))
+      if (result.count === 0 && result.skipped > 0) {
+        toast.warning(t('places.importAllSkipped'))
+      } else {
+        toast.success(t(provider === 'google' ? 'places.googleListImported' : 'places.naverListImported', { count: result.count, list: result.listName }))
+      }
       setListImportOpen(false)
       setListImportUrl('')
       if (result.places?.length > 0) {
@@ -144,7 +157,26 @@ const PlacesSidebar = React.memo(function PlacesSidebar({
     selectedDayId && (assignments[String(selectedDayId)] || []).some(a => a.place?.id === placeId)
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif" }}>
+    <div
+      onDragEnter={handleSidebarDragEnter}
+      onDragOver={handleSidebarDragOver}
+      onDragLeave={handleSidebarDragLeave}
+      onDrop={handleSidebarDrop}
+      style={{ display: 'flex', flexDirection: 'column', height: '100%', fontFamily: "-apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif", position: 'relative' }}
+    >
+      {sidebarDragOver && (
+        <div style={{
+          position: 'absolute', inset: 0, zIndex: 10,
+          background: 'color-mix(in srgb, var(--accent) 12%, transparent)',
+          border: '2px dashed var(--accent)',
+          borderRadius: 4,
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+          gap: 10, pointerEvents: 'none',
+        }}>
+          <Upload size={28} strokeWidth={1.5} color="var(--accent)" />
+          <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--accent)' }}>{t('places.sidebarDrop')}</span>
+        </div>
+      )}
       {/* Kopfbereich */}
       <div style={{ padding: '14px 16px 10px', borderBottom: '1px solid var(--border-faint)', flexShrink: 0 }}>
         {canEditPlaces && <button
@@ -159,10 +191,9 @@ const PlacesSidebar = React.memo(function PlacesSidebar({
           <Plus size={14} strokeWidth={2} /> {t('places.addPlace')}
         </button>}
         {canEditPlaces && <>
-        <input ref={gpxInputRef} type="file" accept=".gpx" style={{ display: 'none' }} onChange={handleGpxImport} />
         <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
           <button
-            onClick={() => gpxInputRef.current?.click()}
+            onClick={() => setFileImportOpen(true)}
             style={{
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
               flex: 1, padding: '5px 12px', borderRadius: 8,
@@ -171,7 +202,7 @@ const PlacesSidebar = React.memo(function PlacesSidebar({
               cursor: 'pointer', fontFamily: 'inherit',
             }}
           >
-            <Upload size={11} strokeWidth={2} /> {t('places.importGpx')}
+            <Upload size={11} strokeWidth={2} /> {t('places.importFile')}
           </button>
           <button
             onClick={() => setListImportOpen(true)}
@@ -537,6 +568,13 @@ const PlacesSidebar = React.memo(function PlacesSidebar({
         </div>,
         document.body
       )}
+      <FileImportModal
+        isOpen={fileImportOpen}
+        onClose={() => { setFileImportOpen(false); setSidebarDropFile(null) }}
+        tripId={tripId}
+        pushUndo={pushUndo}
+        initialFile={sidebarDropFile}
+      />
       <ContextMenu menu={ctxMenu.menu} onClose={ctxMenu.close} />
     </div>
   )
