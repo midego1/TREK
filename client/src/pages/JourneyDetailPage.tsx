@@ -908,11 +908,11 @@ function GalleryView({ entries, journeyId, userId, trips, onPhotoClick, onRefres
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1.5 pb-24 md:pb-6">
-          {allPhotos.map(({ photo, entry }) => (
+          {allPhotos.map(({ photo, entry }, i) => (
             <div
               key={photo.id}
               className="relative aspect-square rounded-lg overflow-hidden cursor-pointer group"
-              onClick={() => onPhotoClick(entry.photos, entry.photos.indexOf(photo))}
+              onClick={() => onPhotoClick(allPhotos.map(a => a.photo), i)}
             >
               <img
                 src={photoUrl(photo, 'thumbnail')}
