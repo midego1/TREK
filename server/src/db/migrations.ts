@@ -1605,6 +1605,20 @@ function runMigrations(db: Database.Database): void {
         CREATE INDEX IF NOT EXISTS idx_idempotency_keys_created ON idempotency_keys(created_at);
       `);
     },
+    // Migration 101: System notices — user tracking columns + dismissals table
+    () => {
+      db.exec(`ALTER TABLE users ADD COLUMN first_seen_version TEXT NOT NULL DEFAULT '0.0.0'`);
+      db.exec(`ALTER TABLE users ADD COLUMN login_count INTEGER NOT NULL DEFAULT 0`);
+      db.exec(`
+        CREATE TABLE IF NOT EXISTS user_notice_dismissals (
+          user_id      INTEGER NOT NULL,
+          notice_id    TEXT    NOT NULL,
+          dismissed_at INTEGER NOT NULL,
+          PRIMARY KEY (user_id, notice_id),
+          FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        )
+      `);
+    },
   ];
 
   if (currentVersion < migrations.length) {
