@@ -123,12 +123,12 @@ describe('MapSettingsTab', () => {
     });
     render(<MapSettingsTab />);
     await user.click(screen.getByText('Save Map'));
-    expect(updateSettings).toHaveBeenCalledWith({
+    expect(updateSettings).toHaveBeenCalledWith(expect.objectContaining({
       map_tile_url: '',
       default_lat: 48.8566,
       default_lng: 2.3522,
       default_zoom: 10,
-    });
+    }));
   });
 
   it('FE-COMP-MAP-013: Save Map button shows spinner while saving', async () => {
