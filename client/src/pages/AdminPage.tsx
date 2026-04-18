@@ -903,7 +903,7 @@ export default function AdminPage(): React.ReactElement {
                       </div>
                       <button
                         onClick={() => handleToggleAuthSetting('oidc_registration', !oidcRegistration, setOidcRegistration)}
-                        className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+                        className="relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors"
                         style={{ background: oidcRegistration ? 'var(--text-primary)' : 'var(--border-primary)' }}
                       >
                         <span
@@ -930,7 +930,7 @@ export default function AdminPage(): React.ReactElement {
                     <button
                       type="button"
                       onClick={() => handleToggleRequireMfa(!requireMfa)}
-                      className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+                      className="relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors"
                       style={{ background: requireMfa ? 'var(--text-primary)' : 'var(--border-primary)' }}
                     >
                       <span
@@ -1036,7 +1036,7 @@ export default function AdminPage(): React.ReactElement {
                   </div>
 
                   {/* Place Photos Toggle */}
-                  <div className="flex items-center justify-between py-3 border-t border-slate-100">
+                  <div className="flex items-center justify-between gap-4 py-3 border-t border-slate-100">
                     <div>
                       <p className="text-sm font-medium text-slate-700">{t('admin.placesPhotos.title')}</p>
                       <p className="text-xs text-slate-400 mt-0.5">{t('admin.placesPhotos.subtitle')}</p>
@@ -1048,7 +1048,7 @@ export default function AdminPage(): React.ReactElement {
                         setPlacesPhotosEnabled(next)
                         try { await adminApi.updatePlacesPhotos(next) } catch { setPlacesPhotosEnabledState(!next); setPlacesPhotosEnabled(!next) }
                       }}
-                      className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+                      className="relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors"
                       style={{ background: placesPhotosEnabled ? 'var(--text-primary)' : 'var(--border-primary)' }}
                     >
                       <span className="absolute left-0.5 h-5 w-5 rounded-full bg-white transition-transform duration-200" style={{ transform: placesPhotosEnabled ? 'translateX(20px)' : 'translateX(0)' }} />
@@ -1056,7 +1056,7 @@ export default function AdminPage(): React.ReactElement {
                   </div>
 
                   {/* Place Autocomplete Toggle */}
-                  <div className="flex items-center justify-between py-3 border-t border-slate-100">
+                  <div className="flex items-center justify-between gap-4 py-3 border-t border-slate-100">
                     <div>
                       <p className="text-sm font-medium text-slate-700">{t('admin.placesAutocomplete.title')}</p>
                       <p className="text-xs text-slate-400 mt-0.5">{t('admin.placesAutocomplete.subtitle')}</p>
@@ -1068,7 +1068,7 @@ export default function AdminPage(): React.ReactElement {
                         setPlacesAutocompleteEnabled(next)
                         try { await adminApi.updatePlacesAutocomplete(next) } catch { setPlacesAutocompleteEnabledState(!next); setPlacesAutocompleteEnabled(!next) }
                       }}
-                      className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+                      className="relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors"
                       style={{ background: placesAutocompleteEnabled ? 'var(--text-primary)' : 'var(--border-primary)' }}
                     >
                       <span className="absolute left-0.5 h-5 w-5 rounded-full bg-white transition-transform duration-200" style={{ transform: placesAutocompleteEnabled ? 'translateX(20px)' : 'translateX(0)' }} />
@@ -1076,7 +1076,7 @@ export default function AdminPage(): React.ReactElement {
                   </div>
 
                   {/* Place Details Toggle */}
-                  <div className="flex items-center justify-between py-3 border-t border-slate-100">
+                  <div className="flex items-center justify-between gap-4 py-3 border-t border-slate-100">
                     <div>
                       <p className="text-sm font-medium text-slate-700">{t('admin.placesDetails.title')}</p>
                       <p className="text-xs text-slate-400 mt-0.5">{t('admin.placesDetails.subtitle')}</p>
@@ -1088,7 +1088,7 @@ export default function AdminPage(): React.ReactElement {
                         setPlacesDetailsEnabled(next)
                         try { await adminApi.updatePlacesDetails(next) } catch { setPlacesDetailsEnabledState(!next); setPlacesDetailsEnabled(!next) }
                       }}
-                      className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+                      className="relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors"
                       style={{ background: placesDetailsEnabled ? 'var(--text-primary)' : 'var(--border-primary)' }}
                     >
                       <span className="absolute left-0.5 h-5 w-5 rounded-full bg-white transition-transform duration-200" style={{ transform: placesDetailsEnabled ? 'translateX(20px)' : 'translateX(0)' }} />
@@ -1328,7 +1328,7 @@ export default function AdminPage(): React.ReactElement {
                         const newVal = smtpValues.smtp_skip_tls_verify === 'true' ? 'false' : 'true'
                         setSmtpValues(prev => ({ ...prev, smtp_skip_tls_verify: newVal }))
                       }}
-                        className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors"
+                        className="relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors"
                         style={{ background: smtpValues.smtp_skip_tls_verify === 'true' ? 'var(--text-primary)' : 'var(--border-primary)' }}>
                         <span className="absolute left-0.5 h-5 w-5 rounded-full bg-white transition-transform duration-200"
                           style={{ transform: smtpValues.smtp_skip_tls_verify === 'true' ? 'translateX(20px)' : 'translateX(0)' }} />
