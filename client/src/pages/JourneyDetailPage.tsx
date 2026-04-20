@@ -2312,7 +2312,10 @@ function EntryEditor({ entry, journeyId, tripDates, galleryPhotos, onClose, onSa
               )}
             </div>
 
-            {/* Gallery picker — directly below buttons */}
+            {/* Gallery picker — directly below buttons. Safari collapses
+                `aspect-square` items inside an overflow-scroll grid, so
+                the square is enforced with a padding-top spacer + an
+                absolutely positioned image (works across all browsers). */}
             {showGalleryPick && (
               <div className="mt-2 border border-zinc-200 dark:border-zinc-700 rounded-xl p-3 bg-zinc-50 dark:bg-zinc-800/50">
                 <div className="grid grid-cols-5 sm:grid-cols-6 gap-1.5 max-h-[160px] overflow-y-auto">
@@ -2330,9 +2333,10 @@ function EntryEditor({ entry, journeyId, tripDates, galleryPhotos, onClose, onSa
                           setPhotos(prev => [...prev, gp])
                         }
                       }}
-                      className="aspect-square rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-zinc-900 dark:hover:ring-white hover:ring-offset-1 dark:hover:ring-offset-zinc-900 transition-all"
+                      className="relative w-full rounded-lg overflow-hidden cursor-pointer hover:ring-2 hover:ring-zinc-900 dark:hover:ring-white hover:ring-offset-1 dark:hover:ring-offset-zinc-900 transition-all"
+                      style={{ paddingTop: '100%' }}
                     >
-                      <img src={photoUrl(gp)} alt="" className="w-full h-full object-cover" loading="lazy" onError={e => { const img = e.currentTarget; const orig = photoUrl(gp, 'original'); if (!img.src.includes('/original')) img.src = orig }} />
+                      <img src={photoUrl(gp)} alt="" className="absolute inset-0 w-full h-full object-cover" loading="lazy" onError={e => { const img = e.currentTarget; const orig = photoUrl(gp, 'original'); if (!img.src.includes('/original')) img.src = orig }} />
                     </div>
                   ))}
                   {galleryPhotos.filter(gp => !photos.some(p => p.id === gp.id)).length === 0 && (
