@@ -36,10 +36,7 @@ feat(component): short description of new feature
 
 ### PR Description
 
-Include:
-1. **Summary** — What does this PR do? (1-3 bullet points)
-2. **Test plan** — How was this tested?
-3. **Related issue** — Link the issue (e.g. `Fixes #123`)
+Follow the template provided by default (.github/PULL_REQUEST_TEMPLATE.md).
 
 ### What Will Get Your PR Closed
 
@@ -55,12 +52,12 @@ See the [[Development Environment|Development-environment]] page for the full se
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Frontend | React 18, TypeScript, Zustand, Leaflet, Tailwind CSS, Vite |
-| Backend | Express, TypeScript, better-sqlite3 |
-| Real-time | WebSocket (ws) |
-| Database | SQLite with WAL mode |
-| Auth | JWT (HS256), bcrypt, TOTP MFA, OIDC |
-| Maps | Leaflet + react-leaflet, OSRM, Nominatim, CartoDB tiles |
-| i18n | 13 languages (EN, DE, ES, FR, NL, IT, PT-BR, CS, PL, HU, RU, ZH, AR) |
+| Layer | Technology                                                                      |
+|---|---------------------------------------------------------------------------------|
+| Frontend | React 18, TypeScript, Zustand, Leaflet, Tailwind CSS, Vite                      |
+| Backend | Express, TypeScript, better-sqlite3                                             |
+| Real-time | WebSocket (ws)                                                                  |
+| Database | SQLite with WAL mode                                                            |
+| Auth | JWT (HS256), bcrypt, TOTP MFA, OIDC                                             |
+| Maps | Leaflet + react-leaflet, OSRM, Nominatim, CartoDB tiles                         |
+| i18n | 15 languages (EN, DE, ES, FR, NL, IT, PT-BR, CS, PL, HU, RU, ZH, ZH-TW, AR, ID) |
